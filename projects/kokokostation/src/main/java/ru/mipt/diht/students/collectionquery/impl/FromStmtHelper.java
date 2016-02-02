@@ -2,26 +2,21 @@ package ru.mipt.diht.students.collectionquery.impl;
 
 import javafx.util.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class FromStmtHelper<T, R> {
     private final Stream<T> data;
-    private final UnionStmt<R> context;
+    private final Context<R> context;
 
-    FromStmtHelper(Stream<T> data, UnionStmt<R> context) {
+    FromStmtHelper(Stream<T> data, Context<R> context) {
         this.data = data;
         this.context = context;
-    }
-
-    public static <T, R> FromStmtHelper<T, R> from(Iterable<T> iterable) {
-        return new FromStmtHelper<>(Utils.iterableToStream(iterable), null);
-    }
-
-    public static <T, R> FromStmtHelper<T, R> from(Stream<T> stream) {
-        return new FromStmtHelper<>(stream, null);
     }
 
     @SafeVarargs

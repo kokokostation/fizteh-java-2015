@@ -1,7 +1,6 @@
 package ru.mipt.diht.students.collectionquery;
 
 import javafx.util.Pair;
-import ru.mipt.diht.students.collectionquery.impl.FromStmtHelper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
@@ -16,7 +15,7 @@ import static ru.mipt.diht.students.collectionquery.Conditions.rlike;
 import static ru.mipt.diht.students.collectionquery.OrderByConditions.asc;
 import static ru.mipt.diht.students.collectionquery.OrderByConditions.desc;
 import static ru.mipt.diht.students.collectionquery.Sources.list;
-import static ru.mipt.diht.students.collectionquery.impl.FromStmtHelper.from;
+import static ru.mipt.diht.students.collectionquery.impl.FromStmt.from;
 
 public class CollectionQuery {
 
@@ -27,7 +26,7 @@ public class CollectionQuery {
      */
     public static void main(String[] args) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         Iterable<Statistics> statistics =
-                FromStmtHelper.<Student, Statistics>from(list(
+                from(list(
                         student("ivanov", LocalDate.parse("1986-08-06"), "494"),
                         student("ivanov", LocalDate.parse("1986-08-06"), "494")))
                         .select(Statistics.class, Student::getGroup, count(Student::getGroup), avg(Student::age))
@@ -43,7 +42,7 @@ public class CollectionQuery {
         System.out.println(statistics);
 
         Iterable<Pair<String, String>> mentorsByStudent =
-                FromStmtHelper.<Student, Pair<String, String>>from(list(student("ivanov", LocalDate.parse("1985-08-06"), "494")))
+                from(list(student("ivanov", LocalDate.parse("1985-08-06"), "494")))
                         .join(list(new Group("494", "mr.sidorov")))
                         .on((s, g) -> Objects.equals(s.getGroup(), g.getGroup()))
                         .select(sg -> sg.getKey().getName(), sg -> sg.getValue().getMentor())
@@ -59,14 +58,18 @@ public class CollectionQuery {
 
         private final String group;
 
-        public String getName() {
-            return name;
-        }
-
         public Student(String name, LocalDate dateOfBith, String group) {
             this.name = name;
             this.dateOfBith = dateOfBith;
             this.group = group;
+        }
+
+        public static Student student(String name, LocalDate dateOfBith, String group) {
+            return new Student(name, dateOfBith, group);
+        }
+
+        public String getName() {
+            return name;
         }
 
         public LocalDate getDateOfBith() {
@@ -79,10 +82,6 @@ public class CollectionQuery {
 
         public long age() {
             return ChronoUnit.YEARS.between(getDateOfBith(), LocalDateTime.now());
-        }
-
-        public static Student student(String name, LocalDate dateOfBith, String group) {
-            return new Student(name, dateOfBith, group);
         }
     }
 
@@ -111,6 +110,12 @@ public class CollectionQuery {
         private final Long count;
         private final Double age;
 
+        public Statistics(String group, Long count, Double age) {
+            this.group = group;
+            this.count = count;
+            this.age = age;
+        }
+
         public String getGroup() {
             return group;
         }
@@ -121,12 +126,6 @@ public class CollectionQuery {
 
         public Double getAge() {
             return age;
-        }
-
-        public Statistics(String group, Long count, Double age) {
-            this.group = group;
-            this.count = count;
-            this.age = age;
         }
 
         @Override

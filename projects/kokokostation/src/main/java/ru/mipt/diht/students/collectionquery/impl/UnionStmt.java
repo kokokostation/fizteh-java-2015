@@ -4,16 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UnionStmt<R> {
-    List<SelectStmt<?, R>> selectStmts = new ArrayList<>();
+    Context<R> context;
 
-    void add(SelectStmt<?, R> selectStmt) {
-        selectStmts.add(selectStmt);
-    }
-    Iterable<SelectStmt<?, R>> get() {
-        return selectStmts;
+    public UnionStmt(Context<R> context) {
+        this.context = context;
     }
 
     public <T> FromStmtHelper<T, R> from(Iterable<T> iterable) {
-        return new FromStmtHelper<>(Utils.iterableToStream(iterable), this);
+        return new FromStmtHelper<>(Utils.iterableToStream(iterable), context);
     }
 }
